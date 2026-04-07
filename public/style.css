@@ -29,6 +29,10 @@ html, body {
 }
 
 body {
+  font-family: 'NanumSquare', 'Trebuchet MS', Arial, sans-serif;
+}
+
+body {
   position: relative;
   overflow-x: hidden;
 }
