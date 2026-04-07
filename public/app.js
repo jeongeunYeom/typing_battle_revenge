@@ -35,7 +35,7 @@ createBtn.addEventListener("click", () => {
   const roomCode = roomInput.value.trim().toUpperCase();
 
   if (!name || !roomCode) {
-    lobbyMessage.textContent = "´Ğ³×ÀÓ°ú ¹æ ÄÚµå¸¦ ÀÔ·ÂÇÏ¼¼¿ä.";
+    lobbyMessage.textContent = "ë‹‰ë„¤ì„ê³¼ ë°© ì½”ë“œë¥¼ ì…ë ¥í•˜ì„¸ìš”.";
     return;
   }
 
@@ -47,7 +47,7 @@ joinBtn.addEventListener("click", () => {
   const roomCode = roomInput.value.trim().toUpperCase();
 
   if (!name || !roomCode) {
-    lobbyMessage.textContent = "´Ğ³×ÀÓ°ú ¹æ ÄÚµå¸¦ ÀÔ·ÂÇÏ¼¼¿ä.";
+    lobbyMessage.textContent = "ë‹‰ë„¤ì„ê³¼ ë°© ì½”ë“œë¥¼ ì…ë ¥í•˜ì„¸ìš”.";
     return;
   }
 
@@ -80,10 +80,10 @@ function renderScoreBoard(players) {
   players.forEach((player) => {
     const div = document.createElement("div");
     div.className = "playerCard";
-    div.innerHTML = `
-      <div><strong>${player.name}</strong> ${player.id === mySocketId ? "(³ª)" : ""}</div>
-      <div>Á¡¼ö: ${player.score}</div>
-    `;
+  div.innerHTML = `
+    <div><strong>${player.name}</strong> ${player.id === mySocketId ? " ğŸ’˜" : " âš¡"}</div>
+    <div>ì ìˆ˜: ${player.score}ì </div>
+  `;
     scoreBoard.appendChild(div);
   });
 }
@@ -110,7 +110,7 @@ socket.on("joinedRoom", ({ roomCode }) => {
   roomCodeText.textContent = roomCode;
   lobbyPanel.classList.add("hidden");
   gamePanel.classList.remove("hidden");
-  systemText.textContent = "»ó´ë¸¦ ±â´Ù¸®´Â Áß...";
+  systemText.textContent = "ìƒëŒ€ë¥¼ ê¸°ë‹¤ë¦¬ëŠ” ì¤‘...";
 });
 
 socket.on("errorMessage", (msg) => {
@@ -133,7 +133,7 @@ socket.on("newRound", ({ clue, round, maxRounds }) => {
   answerInput.disabled = false;
   submitBtn.disabled = false;
   feedbackText.textContent = "";
-  systemText.textContent = "Á¤´äÀ» °¡Àå ¸ÕÀú ÀÔ·ÂÇÏ¼¼¿ä.";
+  systemText.textContent = "ì •ë‹µì„ ê°€ì¥ ë¨¼ì € ì…ë ¥í•˜ì„¸ìš”.";
   currentRoundStartTime = Date.now();
   answerInput.focus();
 });
@@ -147,12 +147,12 @@ socket.on("answerResult", ({ correct, message }) => {
 });
 
 socket.on("attackReceived", ({ effect, from, answer }) => {
-  systemText.textContent = `${from}ÀÇ °ø°İ! (${answer})`;
+  systemText.textContent = `${from}ì˜ ê³µê²©! (${answer})`;
   applyAttackEffect(effect);
 });
 
 socket.on("roundSolved", ({ solverName, answer }) => {
-  systemText.textContent = `${solverName} Á¤´ä! Á¤´äÀº "${answer}"`;
+  systemText.textContent = `${solverName} ì •ë‹µ! ì •ë‹µì€ "${answer}"`;
   answerInput.disabled = true;
   submitBtn.disabled = true;
   currentRoundStartTime = null;
@@ -168,7 +168,7 @@ socket.on("gameOver", ({ result, players }) => {
   players.forEach((player) => {
     const div = document.createElement("div");
     div.className = "finalScoreItem";
-    div.textContent = `${player.name}: ${player.score}Á¡`;
+    div.textContent = `${player.name}: ${player.score}ì `;
     finalScores.appendChild(div);
   });
 });
