@@ -23,16 +23,9 @@ const WORDS = [
   { answer: "work out", clue: "해결하다 / 운동하다" }
 ];
 
+const MAX_HP = 100;
+
 const rooms = {};
-/*
-rooms[roomCode] = {
-  players: [{ id, name, score, ready }],
-  currentWord: { answer, clue },
-  round: 1,
-  maxRounds: 10,
-  solvedBy: null
-}
-*/
 
 function randomWord() {
   return WORDS[Math.floor(Math.random() * WORDS.length)];
@@ -50,6 +43,23 @@ function getPlayer(room, socketId) {
   return room.players.find((p) => p.id === socketId);
 }
 
+function getDamageByTime(elapsedMs) {
+  if (elapsedMs <= 1500) return 22;
+  if (elapsedMs <= 2500) return 18;
+  return 12;
+}
+
+function createAttackEffect() {
+  const effects = ["shake", "flip", "blur"];
+  return effects[Math.floor(Math.random() * effects.length)];
+}
+
+function getSkillName(combo) {
+  if (combo >= 5) return "MEGA REVENGE";
+  if (combo >= 3) return "PHRASAL BURST";
+  return "WORD HIT";
+}
+
 function emitRoomState(roomCode) {
   const room = rooms[roomCode];
   if (!room) return;
@@ -58,7 +68,9 @@ function emitRoomState(roomCode) {
     players: room.players.map((p) => ({
       id: p.id,
       name: p.name,
-      score: p.score
+      score: p.score,
+      hp: p.hp,
+      combo: p.combo
     })),
     round: room.round,
     maxRounds: room.maxRounds
@@ -81,18 +93,25 @@ function startRound(roomCode) {
   emitRoomState(roomCode);
 }
 
-function endGame(roomCode) {
+function endGame(roomCode, forcedWinnerName = null) {
   const room = rooms[roomCode];
   if (!room) return;
 
-  const sorted = [...room.players].sort((a, b) => b.score - a.score);
   let result = "무승부";
 
-  if (sorted.length === 2) {
-    if (sorted[0].score > sorted[1].score) {
-      result = `${sorted[0].name} 승리!`;
-    } else if (sorted[0].score < sorted[1].score) {
-      result = `${sorted[1].name} 승리!`;
+  if (forcedWinnerName) {
+    result = `${forcedWinnerName} 승리!`;
+  } else {
+    const sorted = [...room.players].sort((a, b) => {
+      if (b.hp !== a.hp) return b.hp - a.hp;
+      return b.score - a.score;
+    });
+
+    if (sorted.length === 2) {
+      if (sorted[0].hp > sorted[1].hp) result = `${sorted[0].name} 승리!`;
+      else if (sorted[0].hp < sorted[1].hp) result = `${sorted[1].name} 승리!`;
+      else if (sorted[0].score > sorted[1].score) result = `${sorted[0].name} 승리!`;
+      else if (sorted[0].score < sorted[1].score) result = `${sorted[1].name} 승리!`;
     }
   }
 
@@ -100,7 +119,9 @@ function endGame(roomCode) {
     result,
     players: room.players.map((p) => ({
       name: p.name,
-      score: p.score
+      score: p.score,
+      hp: p.hp,
+      combo: p.combo
     }))
   });
 }
@@ -108,6 +129,13 @@ function endGame(roomCode) {
 function nextRoundOrEnd(roomCode) {
   const room = rooms[roomCode];
   if (!room) return;
+
+  const deadPlayer = room.players.find((p) => p.hp <= 0);
+  if (deadPlayer) {
+    const winner = room.players.find((p) => p.id !== deadPlayer.id);
+    endGame(roomCode, winner ? winner.name : null);
+    return;
+  }
 
   room.round += 1;
 
@@ -121,14 +149,7 @@ function nextRoundOrEnd(roomCode) {
   }, 1500);
 }
 
-function createAttackEffect() {
-  const effects = ["shake", "flip", "blur"];
-  return effects[Math.floor(Math.random() * effects.length)];
-}
-
 io.on("connection", (socket) => {
-  console.log("connected:", socket.id);
-
   socket.on("createRoom", ({ roomCode, name }) => {
     if (!roomCode || !name) {
       socket.emit("errorMessage", "방 코드와 이름을 입력하세요.");
@@ -141,7 +162,15 @@ io.on("connection", (socket) => {
     }
 
     rooms[roomCode] = {
-      players: [{ id: socket.id, name, score: 0, ready: true }],
+      players: [
+        {
+          id: socket.id,
+          name,
+          score: 0,
+          hp: MAX_HP,
+          combo: 0
+        }
+      ],
       currentWord: null,
       round: 1,
       maxRounds: 10,
@@ -168,7 +197,14 @@ io.on("connection", (socket) => {
       return;
     }
 
-    room.players.push({ id: socket.id, name, score: 0, ready: true });
+    room.players.push({
+      id: socket.id,
+      name,
+      score: 0,
+      hp: MAX_HP,
+      combo: 0
+    });
+
     socket.join(roomCode);
     socket.data.roomCode = roomCode;
 
@@ -195,43 +231,55 @@ io.on("connection", (socket) => {
       const player = getPlayer(room, socket.id);
       const opponent = getOpponent(room, socket.id);
 
-      if (!player) return;
+      if (!player || !opponent) return;
 
-      let gained = 10;
+      const damage = getDamageByTime(elapsedMs);
+      const bonus = player.combo >= 2 ? player.combo * 2 : 0;
+      const totalDamage = damage + bonus;
 
-      if (elapsedMs <= 2500) gained += 5;
-      if (elapsedMs <= 1500) gained += 5;
+      player.score += 10 + Math.floor(totalDamage / 2);
+      player.combo += 1;
+      opponent.combo = 0;
+      opponent.hp = Math.max(0, opponent.hp - totalDamage);
 
-      player.score += gained;
+      const effect = createAttackEffect();
+      const skillName = getSkillName(player.combo);
 
       io.to(socket.id).emit("answerResult", {
         correct: true,
-        message: `정답! +${gained}점`
+        message: `정답! ${skillName} 발동!`,
+        damage: totalDamage,
+        skillName
       });
 
-      if (opponent) {
-        const effect = createAttackEffect();
-
-        io.to(opponent.id).emit("attackReceived", {
-          effect,
-          from: player.name,
-          answer: room.currentWord.answer
-        });
-      }
+      io.to(opponent.id).emit("attackReceived", {
+        effect,
+        from: player.name,
+        answer: room.currentWord.answer,
+        damage: totalDamage,
+        skillName
+      });
 
       io.to(roomCode).emit("roundSolved", {
         solverId: socket.id,
         solverName: player.name,
-        answer: room.currentWord.answer
+        answer: room.currentWord.answer,
+        damage: totalDamage,
+        skillName
       });
 
       emitRoomState(roomCode);
       nextRoundOrEnd(roomCode);
     } else {
+      const player = getPlayer(room, socket.id);
+      if (player) player.combo = 0;
+
       io.to(socket.id).emit("answerResult", {
         correct: false,
-        message: "오답!"
+        message: "오답! 콤보가 끊겼어요."
       });
+
+      emitRoomState(roomCode);
     }
   });
 
@@ -248,11 +296,9 @@ io.on("connection", (socket) => {
       io.to(roomCode).emit("systemMessage", "상대가 나갔습니다.");
       emitRoomState(roomCode);
     }
-
-    console.log("disconnected:", socket.id);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
