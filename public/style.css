@@ -1,176 +1,351 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: linear-gradient(135deg, #fffdf7 0%, #ffeef8 45%, #eef7ff 100%);
+  --panel: rgba(255, 255, 255, 0.92);
+  --panel-strong: #ffffff;
+  --text: #2b2b2b;
+  --subtext: #6f6f7b;
+  --pink: #ff6fb5;
+  --hotpink: #ff4fa3;
+  --sky: #7cc8ff;
+  --mint: #7ee6c4;
+  --yellow: #ffe37a;
+  --purple: #c8a6ff;
+  --line: #1f1f1f;
+  --shadow: 0 10px 0 #1f1f1f;
+  --shadow-soft: 0 12px 30px rgba(255, 111, 181, 0.18);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Trebuchet MS", "Arial Rounded MT Bold", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
 }
 
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #121212;
-    color: #ffffff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.35;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  top: -40px;
+  left: -30px;
+  background: #ffd1e8;
+}
+
+body::after {
+  right: -50px;
+  bottom: -30px;
+  background: #cfefff;
 }
 
 .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px;
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 18px 60px;
 }
 
-h1, h2 {
-    margin-top: 0;
+h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  text-align: center;
+  color: var(--hotpink);
+  text-shadow:
+    2px 2px 0 #fff,
+    4px 4px 0 #1f1f1f10;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 1.45rem;
 }
 
 .subtitle {
-    color: #cccccc;
-    margin-bottom: 24px;
+  text-align: center;
+  color: var(--subtext);
+  font-size: 1rem;
+  margin-bottom: 24px;
 }
 
 .panel {
-    background: #1e1e1e;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  background: var(--panel);
+  border: 3px solid var(--line);
+  border-radius: 28px;
+  padding: 24px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow), var(--shadow-soft);
+  backdrop-filter: blur(6px);
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 input {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    font-size: 16px;
+  width: 100%;
+  padding: 15px 18px;
+  border: 3px solid var(--line);
+  border-radius: 18px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  box-shadow: 0 4px 0 #1f1f1f08;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+input:focus {
+  border-color: var(--hotpink);
+  box-shadow: 0 0 0 4px rgba(255, 79, 163, 0.14);
+  transform: translateY(-1px);
 }
 
 button {
-    padding: 12px 18px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
+  padding: 13px 20px;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 800;
+  color: #1f1f1f;
+  background: #fff;
+  box-shadow: 0 6px 0 #1f1f1f;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #1f1f1f;
 }
 
 .buttonRow {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-    .buttonRow button,
-    #submitBtn,
-    #resultPanel button {
-        background: #4f7cff;
-        color: white;
-    }
+#createBtn {
+  background: var(--pink);
+}
+
+#joinBtn {
+  background: var(--sky);
+}
+
+#submitBtn,
+#resultPanel button {
+  background: var(--yellow);
+}
 
 .topBar {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.topBar > div {
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 16px;
+  box-shadow: 0 5px 0 #1f1f1f;
+  font-weight: 700;
 }
 
 .scoreBoard {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .playerCard {
-    background: #2a2a2a;
-    padding: 14px;
-    border-radius: 12px;
+  background: linear-gradient(135deg, #fff 0%, #fff7fc 100%);
+  padding: 16px;
+  border-radius: 24px;
+  border: 3px solid var(--line);
+  box-shadow: 0 8px 0 #1f1f1f;
+  position: relative;
+  overflow: hidden;
+}
+
+.playerCard::after {
+  content: "★";
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  font-size: 1.1rem;
+  color: var(--hotpink);
+}
+
+.playerCard strong {
+  font-size: 1.05rem;
 }
 
 .questionBox {
-    background: #2d2d2d;
-    padding: 20px;
-    border-radius: 14px;
-    margin-bottom: 16px;
-    text-align: center;
+  background: linear-gradient(135deg, #fff9c9 0%, #ffe8f4 100%);
+  border: 3px solid var(--line);
+  padding: 24px;
+  border-radius: 28px;
+  margin-bottom: 16px;
+  text-align: center;
+  box-shadow: 0 10px 0 #1f1f1f;
 }
 
-    .questionBox .label {
-        color: #bbbbbb;
-        margin-bottom: 8px;
-    }
+.questionBox .label {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--line);
+  font-size: 0.9rem;
+  color: var(--subtext);
+}
+
+#clueText {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  color: #ff4fa3;
+  margin: 8px 0 0;
+}
 
 .typingBox {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: stretch;
 }
 
-    .typingBox input {
-        flex: 1;
-        margin-bottom: 0;
-    }
+.typingBox input {
+  flex: 1;
+  margin-bottom: 0;
+  min-width: 220px;
+}
 
 .feedbackArea {
-    margin-top: 16px;
+  margin-top: 18px;
 }
 
 .message {
-    font-size: 15px;
-    font-weight: bold;
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  background: #fff;
+  margin-bottom: 10px;
 }
 
 .system {
-    color: #ffc857;
+  color: #4b4b58;
+  font-weight: 700;
+  padding-left: 2px;
+}
+
+#resultText {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--hotpink);
+}
+
+#finalScores {
+  margin: 18px 0 10px;
+}
+
+.finalScoreItem {
+  background: linear-gradient(135deg, #ffffff 0%, #eefbff 100%);
+  border-radius: 22px;
+  border: 3px solid var(--line);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 0 #1f1f1f;
+  font-weight: 700;
 }
 
 .shake {
-    animation: shake 0.5s ease-in-out 3;
+  animation: shake 0.5s ease-in-out 3;
 }
 
 .flip-text #clueText,
 .flip-text #answerInput {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .blur-input #answerInput {
-    filter: blur(4px);
+  filter: blur(4px);
 }
 
 @keyframes shake {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    20% {
-        transform: translate(-6px, 2px);
-    }
-
-    40% {
-        transform: translate(6px, -2px);
-    }
-
-    60% {
-        transform: translate(-4px, 2px);
-    }
-
-    80% {
-        transform: translate(4px, -2px);
-    }
-
-    100% {
-        transform: translate(0, 0);
-    }
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 2px); }
+  40% { transform: translate(6px, -2px); }
+  60% { transform: translate(-4px, 2px); }
+  80% { transform: translate(4px, -2px); }
+  100% { transform: translate(0, 0); }
 }
 
-#finalScores {
-    margin: 16px 0;
-}
+@media (max-width: 700px) {
+  .container {
+    padding: 20px 12px 40px;
+  }
 
-.finalScoreItem {
-    background: #2a2a2a;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
+  .panel {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .scoreBoard {
+    grid-template-columns: 1fr;
+  }
+
+  .typingBox {
+    flex-direction: column;
+  }
+
+  .typingBox input,
+  .typingBox button {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .buttonRow {
+    flex-direction: column;
+  }
+
+  .topBar {
+    flex-direction: column;
+  }
 }
