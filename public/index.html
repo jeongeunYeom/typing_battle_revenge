@@ -4,33 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>복수혈전 영단어 대결</title>
-  <link rel="stylesheet" href="/style.css" />
   <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container" id="gameRoot">
-    <h1>복수혈전 영단어 대결</h1>
-    <p class="subtitle">맞히면 상대 화면에 방해물이 날아갑니다.</p>
+    <h1>💖 복수혈전 영단어 대결 💖</h1>
+    <p class="subtitle">먼저 맞히고, 상대 화면을 흔들어버려!</p>
 
     <section class="panel" id="lobbyPanel">
-      <h2>로비</h2>
-      <input id="nameInput" type="text" placeholder="닉네임" />
-      <input id="roomInput" type="text" placeholder="방 코드 (예: ROOM1)" />
+      <h2>게임 입장</h2>
+      <input id="nameInput" type="text" placeholder="닉네임 입력 ♡" />
+      <input id="roomInput" type="text" placeholder="방 코드 입력 ✦" />
       <div class="buttonRow">
-        <button id="createBtn">방 만들기</button>
-        <button id="joinBtn">방 참가</button>
+        <button id="createBtn">방 만들기 ✨</button>
+        <button id="joinBtn">참가하기 🎀</button>
       </div>
       <p id="lobbyMessage" class="message"></p>
     </section>
 
     <section class="panel hidden" id="gamePanel">
       <div class="topBar">
-        <div>
-          <strong>방 코드:</strong> <span id="roomCodeText"></span>
+        <div><strong>방 코드:</strong> <span id="roomCodeText"></span></div>
+        <div><strong>라운드:</strong> <span id="roundText">0</span></div>
+      </div>
+
+      <div class="inviteBox">
+        <input id="inviteLinkInput" type="text" readonly />
+        <div class="buttonRow">
+          <button id="copyInviteBtn">링크 복사 🔗</button>
+          <button id="kakaoShareBtn">카톡 공유 💬</button>
         </div>
-        <div>
-          <strong>라운드:</strong> <span id="roundText">0</span>
-        </div>
+      </div>
+
+      <div class="battleStatus">
+        <div class="skillBanner" id="skillBanner">READY!</div>
       </div>
 
       <div class="scoreBoard" id="scoreBoard"></div>
@@ -41,8 +49,8 @@
       </div>
 
       <div class="typingBox" id="typingBox">
-        <input id="answerInput" type="text" placeholder="정답 입력 (예: call off)" disabled />
-        <button id="submitBtn" disabled>제출</button>
+        <input id="answerInput" type="text" placeholder="정답을 입력해줘!" disabled />
+        <button id="submitBtn" disabled>공격하기 💥</button>
       </div>
 
       <div class="feedbackArea">
@@ -55,10 +63,11 @@
       <h2>게임 종료</h2>
       <p id="resultText"></p>
       <div id="finalScores"></div>
-      <button onclick="location.reload()">다시 하기</button>
+      <button onclick="location.reload()">다시 하기 🔄</button>
     </section>
   </div>
 
+  <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js"></script>
 </body>
