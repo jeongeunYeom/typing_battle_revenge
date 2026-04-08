@@ -299,6 +299,20 @@ button:active {
   filter: blur(4px);
 }
 
+.hintBox {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#hintBtn {
+  background: #7ee6c4;
+}
+
+#revealBtn {
+  background: #ff9aa2;
+}
+
 @keyframes shake {
   0% { transform: translate(0, 0); }
   20% { transform: translate(-6px, 2px); }
