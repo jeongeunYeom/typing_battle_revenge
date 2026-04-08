@@ -6,6 +6,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+const answer = room.currentWord.answer;
+const words = answer.split(" ");
+
 app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
@@ -302,9 +305,6 @@ io.on("connection", (socket) => {
 socket.on("requestHint", () => {
   const room = rooms[socket.data.roomCode];
   if (!room || !room.currentWord) return;
-
-  const answer = room.currentWord.answer;
-  const words = answer.split(" ");
 
   // 힌트: 첫 글자만 공개
   const hint = words
