@@ -6,9 +6,6 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const answer = room.currentWord.answer;
-const words = answer.split(" ");
-
 app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
@@ -27,7 +24,6 @@ const WORDS = [
 ];
 
 const MAX_HP = 100;
-
 const rooms = {};
 
 function randomWord() {
@@ -286,6 +282,44 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("requestHint", () => {
+    const roomCode = socket.data.roomCode;
+    const room = rooms[roomCode];
+    if (!room || !room.currentWord) return;
+
+    const answer = room.currentWord.answer;
+    const words = answer.split(" ");
+
+    const hint = words
+      .map((w) => w[0] + "_".repeat(w.length - 1))
+      .join(" ");
+
+    const player = getPlayer(room, socket.id);
+    if (player) player.combo = 0;
+
+    socket.emit("hintResult", { hint });
+    emitRoomState(roomCode);
+  });
+
+  socket.on("requestReveal", () => {
+    const roomCode = socket.data.roomCode;
+    const room = rooms[roomCode];
+    if (!room || !room.currentWord) return;
+
+    const player = getPlayer(room, socket.id);
+    if (!player) return;
+
+    player.hp = Math.max(0, player.hp - 15);
+    player.combo = 0;
+
+    socket.emit("revealResult", {
+      answer: room.currentWord.answer
+    });
+
+    emitRoomState(roomCode);
+    nextRoundOrEnd(roomCode);
+  });
+
   socket.on("disconnect", () => {
     const roomCode = socket.data.roomCode;
     if (!roomCode || !rooms[roomCode]) return;
@@ -300,38 +334,6 @@ io.on("connection", (socket) => {
       emitRoomState(roomCode);
     }
   });
-});
-
-socket.on("requestHint", () => {
-  const room = rooms[socket.data.roomCode];
-  if (!room || !room.currentWord) return;
-
-  // 힌트: 첫 글자만 공개
-  const hint = words
-    .map(w => w[0] + "_".repeat(w.length - 1))
-    .join(" ");
-
-  const player = getPlayer(room, socket.id);
-  if (player) player.combo = 0; // 패널티
-
-  socket.emit("hintResult", { hint });
-  emitRoomState(socket.data.roomCode);
-});
-
-socket.on("requestReveal", () => {
-  const room = rooms[socket.data.roomCode];
-  if (!room || !room.currentWord) return;
-
-  const player = getPlayer(room, socket.id);
-  if (!player) return;
-
-  player.hp = Math.max(0, player.hp - 15); // 패널티
-
-  socket.emit("revealResult", {
-    answer: room.currentWord.answer
-  });
-
-  emitRoomState(socket.data.roomCode);
 });
 
 server.listen(PORT, () => {
