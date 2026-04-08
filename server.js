@@ -299,6 +299,41 @@ io.on("connection", (socket) => {
   });
 });
 
+socket.on("requestHint", () => {
+  const room = rooms[socket.data.roomCode];
+  if (!room || !room.currentWord) return;
+
+  const answer = room.currentWord.answer;
+  const words = answer.split(" ");
+
+  // 힌트: 첫 글자만 공개
+  const hint = words
+    .map(w => w[0] + "_".repeat(w.length - 1))
+    .join(" ");
+
+  const player = getPlayer(room, socket.id);
+  if (player) player.combo = 0; // 패널티
+
+  socket.emit("hintResult", { hint });
+  emitRoomState(socket.data.roomCode);
+});
+
+socket.on("requestReveal", () => {
+  const room = rooms[socket.data.roomCode];
+  if (!room || !room.currentWord) return;
+
+  const player = getPlayer(room, socket.id);
+  if (!player) return;
+
+  player.hp = Math.max(0, player.hp - 15); // 패널티
+
+  socket.emit("revealResult", {
+    answer: room.currentWord.answer
+  });
+
+  emitRoomState(socket.data.roomCode);
+});
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
