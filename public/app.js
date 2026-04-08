@@ -251,6 +251,25 @@ socket.on("roundSolved", ({ solverName, answer, damage, skillName }) => {
   currentRoundStartTime = null;
 });
 
+const hintBtn = document.getElementById("hintBtn");
+const revealBtn = document.getElementById("revealBtn");
+
+hintBtn.addEventListener("click", () => {
+  socket.emit("requestHint");
+});
+
+revealBtn.addEventListener("click", () => {
+  socket.emit("requestReveal");
+});
+
+socket.on("hintResult", ({ hint }) => {
+  skillBanner.textContent = `힌트: ${hint}`;
+});
+
+socket.on("revealResult", ({ answer }) => {
+  skillBanner.textContent = `정답: ${answer}`;
+});
+
 socket.on("gameOver", ({ result, players }) => {
   gamePanel.classList.add("hidden");
   resultPanel.classList.remove("hidden");
